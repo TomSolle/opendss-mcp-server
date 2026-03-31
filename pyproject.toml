@@ -1,0 +1,44 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "opendss-mcp-server"
+version = "0.1.0"
+description = "MCP server for OpenDSS power distribution system simulation and analysis"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+authors = [
+    { name = "Juan Pablo Salamanca", email = "jpsalamanca@proing.com.co" }
+]
+keywords = ["opendss", "mcp", "power-systems", "distribution", "simulation"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "mcp[cli]>=1.0.0",
+    "py-dss-interface>=2.0.0",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "matplotlib>=3.7.0",
+    "openpyxl>=3.1.0",
+    "pydantic>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-asyncio", "ruff"]
+
+[project.scripts]
+opendss-mcp = "opendss_mcp.server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/opendss_mcp"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"

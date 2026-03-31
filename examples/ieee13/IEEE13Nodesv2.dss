@@ -1,0 +1,67 @@
+! IEEE 13 Node Test Feeder — Simplified (sequence impedances)
+! Based on IEEE PES Distribution System Analysis Subcommittee
+! Adapted for py-dss-interface compatibility (no rmatrix/xmatrix)
+
+Clear
+
+New Circuit.IEEE13Nodesv2 basekv=115 pu=1.0001 phases=3 bus1=SourceBus
+~ angle=30 MVAsc3=20000 MVASC1=21000
+
+! Substation transformer 115/4.16 kV
+New Transformer.Sub Phases=3 Windings=2 XHL=8
+~ wdg=1 bus=SourceBus conn=delta kv=115 kva=5000 %r=0.5
+~ wdg=2 bus=650 conn=wye kv=4.16 kva=5000 %r=0.5
+
+! Line codes (sequence impedances, converted from original matrices)
+New LineCode.601 nphases=3 r1=0.065 x1=0.192 r0=0.096 x0=0.504 units=km NormAmps=400
+New LineCode.602 nphases=3 r1=0.098 x1=0.220 r0=0.140 x0=0.575 units=km NormAmps=400
+New LineCode.603 nphases=3 r1=0.180 x1=0.210 r0=0.230 x0=0.520 units=km NormAmps=400
+New LineCode.606 nphases=3 r1=0.130 x1=0.078 r0=0.195 x0=0.115 units=km NormAmps=400
+New LineCode.607 nphases=1 r1=0.255 x1=0.097 r0=0.255 x0=0.097 units=km NormAmps=400
+
+! Lines (lengths converted from ft to km: 1 ft = 0.0003048 km)
+New Line.650632 Bus1=650.1.2.3 Bus2=632.1.2.3 LineCode=601 Length=0.6096 units=km
+New Line.632670 Bus1=632.1.2.3 Bus2=670.1.2.3 LineCode=601 Length=0.2033 units=km
+New Line.670671 Bus1=670.1.2.3 Bus2=671.1.2.3 LineCode=601 Length=0.4063 units=km
+New Line.671680 Bus1=671.1.2.3 Bus2=680.1.2.3 LineCode=601 Length=0.3048 units=km
+New Line.632633 Bus1=632.1.2.3 Bus2=633.1.2.3 LineCode=602 Length=0.1524 units=km
+New Line.632645 Bus1=632.1.2.3 Bus2=645.1.2.3 LineCode=603 Length=0.1524 units=km
+New Line.645646 Bus1=645.1.2.3 Bus2=646.1.2.3 LineCode=603 Length=0.0914 units=km
+New Line.692675 Bus1=692.1.2.3 Bus2=675.1.2.3 LineCode=606 Length=0.1524 units=km
+New Line.671684 Bus1=671.1.2.3 Bus2=684.1.2.3 LineCode=603 Length=0.0914 units=km
+New Line.684611 Bus1=684.1.2.3 Bus2=611.1.2.3 LineCode=603 Length=0.0914 units=km
+New Line.684652 Bus1=684.1 Bus2=652.1 LineCode=607 Length=0.2438 units=km
+
+! Tie line 671-692 (replaces switch — Switch=y causes segfault in py-dss-interface)
+New Line.671692 Bus1=671.1.2.3 Bus2=692.1.2.3 LineCode=601 Length=0.001 units=km
+
+! Transformer at 633
+New Transformer.XFM1 Phases=3 Windings=2 XHL=2
+~ wdg=1 bus=633 conn=Wye kv=4.16 kva=500 %r=0.55
+~ wdg=2 bus=634 conn=Wye kv=0.480 kva=500 %r=0.55
+
+! Spot loads (3-phase equivalents)
+New Load.671  Bus1=671.1.2.3 Phases=3 Conn=Delta Model=1 kV=4.16 kW=1155 kvar=660
+New Load.634  Bus1=634.1.2.3 Phases=3 Conn=Wye Model=1 kV=0.480 kW=400 kvar=290
+New Load.645  Bus1=645.1.2.3 Phases=3 Conn=Wye Model=1 kV=4.16 kW=170 kvar=125
+New Load.646  Bus1=646.1.2.3 Phases=3 Conn=Delta Model=2 kV=4.16 kW=230 kvar=132
+New Load.692  Bus1=692.1.2.3 Phases=3 Conn=Delta Model=5 kV=4.16 kW=170 kvar=151
+New Load.675  Bus1=675.1.2.3 Phases=3 Conn=Wye Model=1 kV=4.16 kW=843 kvar=462
+New Load.611  Bus1=611.1.2.3 Phases=3 Conn=Wye Model=5 kV=4.16 kW=170 kvar=80
+New Load.652  Bus1=652.1 Phases=1 Conn=Wye Model=2 kV=2.4 kW=128 kvar=86
+New Load.670  Bus1=670.1.2.3 Phases=3 Conn=Wye Model=1 kV=4.16 kW=200 kvar=116
+
+! Capacitors
+New Capacitor.Cap1 Bus1=675 phases=3 kVAR=600 kV=4.16
+New Capacitor.Cap2 Bus1=611 phases=3 kVAR=100 kV=4.16
+
+! Voltage bases
+Set Voltagebases=[115, 4.16, 0.48]
+Calcvoltagebases
+
+! Energy meter
+New EnergyMeter.M1 element=Transformer.Sub terminal=1
+
+Set mode=snapshot
+! Note: BusCoords loaded externally via engine.compile(buscoords_path=...)
+Solve
