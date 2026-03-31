@@ -126,4 +126,4 @@ MIT License. See [LICENSE](LICENSE).
 
 ## Author
 
-Juan Pablo Salamanca — [PROING S.A.S.](https://proing.com.co)
+Juan Pablo Salamanca — [PROING S.A](https://proing.com.co)
